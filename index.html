@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Checkers Spectator</title>
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      socket.on('gamelist', function (data) {
+            console.log(data);
+         });
+    </script>
+  </body>
+</html>

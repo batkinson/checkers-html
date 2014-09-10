@@ -74,6 +74,22 @@
          }
       });
 
+      function getCell(x, y) {
+         var boardElem = document.getElementsByTagName('board')[0];
+         var rowElem = boardElem.getElementsByTagName('row')[y];
+         var cellElem = rowElem.getElementsByTagName('space')[x];
+         return cellElem;
+      }
+
+      socket.on('MOVED', function(data) {
+         var coords = data.split(' ');
+         var srcx = coords[0], srcy = coords[1], dstx = coords[2], dsty = coords[3];
+         var srcCellElem = getCell(srcx, srcy), dstCellElem = getCell(dstx, dsty);
+         var pieceElem = srcCellElem.childNodes[0];
+         srcCellElem.removeChild(pieceElem);
+         dstCellElem.appendChild(pieceElem);
+      });
+
       function game_list() {
          console.log('sending game list command');
          socket.emit('commands', 'LIST SPECTATE');

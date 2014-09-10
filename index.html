@@ -9,11 +9,14 @@
       var socket = io();
 
       var status_types = ['BOARD', 'TURN', 'MOVED', 'CAPTURED', 'KING', 'LIST SPECTATE'];
+
+      function get_handler(type) {
+         return function(data) { console.log(type + ': ' + data); };
+      }
+
       for (var i=0; i<status_types.length; i++) {
          var status_type = status_types[i];
-         socket.on(status_type, function (data) {
-            console.log(status_type + ': ' + data);
-         });
+         socket.on(status_type, get_handler(status_type));
       }
 
       function game_list() {

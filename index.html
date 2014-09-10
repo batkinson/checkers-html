@@ -26,89 +26,6 @@
     </style>
   </head>
   <body>
-    <board>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-      <row>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-         <space> </space>
-      </row>
-    </board>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
@@ -131,11 +48,17 @@
       });
 
       socket.on('BOARD', function(data) {
+         var boardElem = document.createElement('board');
+         document.body.appendChild(boardElem);
          var rows = data.split('|');
          for (var i=0; i<rows.length; i++) {
+            var rowElem = document.createElement('row');
+            boardElem.appendChild(rowElem);
             var row = rows[i];
             var pieces = row.split('');
             for (var j=0; j<pieces.length; j++) {
+               var spaceElem = document.createElement('space');
+               rowElem.appendChild(spaceElem);
                var piece = pieces[j];
                var pieceElem = document.createElement('piece');
                if (piece.toLowerCase() == 'r') {
@@ -146,8 +69,6 @@
                   continue;
                }
                pieceElem.innerHTML = piece;
-               var rowElem = document.getElementsByTagName('row')[i]
-               var spaceElem = rowElem.getElementsByTagName('space')[j]
                spaceElem.appendChild(pieceElem);
             }
          }

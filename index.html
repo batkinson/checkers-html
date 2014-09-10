@@ -2,8 +2,113 @@
 <html>
   <head>
     <title>Checkers Spectator</title>
+
+    <style>
+      board {
+         display: table;
+         border: solid black 1px;
+      }
+      row {
+         display: table-row;
+      }
+      space {
+         display: table-cell;
+      }
+      piece {
+         color: white;
+      }
+      piece.black {
+         background: black;
+      }
+      piece.red {
+         background: red;
+      }
+    </style>
   </head>
   <body>
+    <board>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+      <row>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+         <space> </space>
+      </row>
+    </board>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
@@ -23,6 +128,29 @@
          var game_ids = data.split(' ');
          // Doesn't handle empty list well
          socket.emit('commands', 'SPECTATE ' + game_ids[0]);
+      });
+
+      socket.on('BOARD', function(data) {
+         var rows = data.split('|');
+         for (var i=0; i<rows.length; i++) {
+            var row = rows[i];
+            var pieces = row.split('');
+            for (var j=0; j<pieces.length; j++) {
+               var piece = pieces[j];
+               var pieceElem = document.createElement('piece');
+               if (piece.toLowerCase() == 'r') {
+                  pieceElem.className='red';
+               } else if (piece.toLowerCase() == 'b') {
+                  pieceElem.className='black';
+               } else {
+                  continue;
+               }
+               pieceElem.innerHTML = piece;
+               var rowElem = document.getElementsByTagName('row')[i]
+               var spaceElem = rowElem.getElementsByTagName('space')[j]
+               spaceElem.appendChild(pieceElem);
+            }
+         }
       });
 
       function game_list() {

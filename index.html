@@ -93,8 +93,15 @@
       socket.on('CAPTURED', function(data) {
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
-         cellElem = getCell(x, y);
+         var cellElem = getCell(x, y);
          cellElem.removeChild(cellElem.childNodes[0]);
+      });
+
+      socket.on('KING', function(data) {
+         var coords = data.split(' ');
+         var x = coords[0], y = coords[1];
+         var pieceElem = getCell(x, y).childNodes[0];
+         pieceElem.innerHTML = pieceElem.innerHTML.toUpperCase();
       });
 
       function game_list() {

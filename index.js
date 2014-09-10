@@ -9,17 +9,28 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket) {
 
-   console.log('page connected');
+   function status_handler(msg) {
+      var STATUS = 'STATUS';
+      var status_types = ['GAME_ID', 'BOARD', 'MOVED', 'CAPTURED', 'WINNER', 'TURN', 'KING', 'LIST SPECTATE'];
+      for (var i=0; i<status_types.length; i++) {
+         type = status_types[i];
+         statusPrefix = STATUS + ' ' + type;
+         prefixIndex = msg.indexOf(statusPrefix);
+         if (prefixIndex >= 0) {
+            content = msg.substring(prefixIndex + statusPrefix.length).trim();
+            socket.emit(type, content);
+         }
+      }
+   }
 
-   game = checkers.connect(function(status_msg) {
-      console.log(status_msg);
+   game = checkers.connect(status_handler);
+
+   socket.on('commands', function(data) {
+      game.send(data);
    });
 
-   game.send('LIST SPECTATE');
-
    socket.on('disconnect', function() {
-      console.log('page disconnected');
-      client.end();
+      game.send('QUIT');
    });
 });
 

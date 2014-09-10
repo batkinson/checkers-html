@@ -28,7 +28,7 @@ function createClient(handler) {
       },
 
       'end': function() {
-         client.end();
+         result.client.end();
       },
 
       'client':  net.connect({port: 5000}, function() {

@@ -8,7 +8,7 @@
     <script>
       var socket = io();
 
-      var status_types = ['BOARD', 'TURN', 'MOVED', 'CAPTURED', 'KING', 'LIST SPECTATE'];
+      var status_types = ['BOARD', 'TURN', 'MOVED', 'CAPTURED', 'KING'];
 
       function get_handler(type) {
          return function(data) { console.log(type + ': ' + data); };
@@ -19,9 +19,15 @@
          socket.on(status_type, get_handler(status_type));
       }
 
+      socket.on('LIST SPECTATE', function(data) {
+         var game_ids = data.split(' ');
+         // Doesn't handle empty list well
+         socket.emit('commands', 'SPECTATE ' + game_ids[0]);
+      });
+
       function game_list() {
          console.log('sending game list command');
-         socket.emit('commands','LIST SPECTATE');
+         socket.emit('commands', 'LIST SPECTATE');
       }
 
       document.body.onload = game_list;

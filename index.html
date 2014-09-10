@@ -90,6 +90,13 @@
          dstCellElem.appendChild(pieceElem);
       });
 
+      socket.on('CAPTURED', function(data) {
+         var coords = data.split(' ');
+         var x = coords[0], y = coords[1];
+         cellElem = getCell(x, y);
+         cellElem.removeChild(cellElem.childNodes[0]);
+      });
+
       function game_list() {
          console.log('sending game list command');
          socket.emit('commands', 'LIST SPECTATE');

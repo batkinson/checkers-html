@@ -11,17 +11,22 @@
       row {
          display: table-row;
       }
-      space {
-         display: table-cell;
+      space, piece {
          width: 25px;
          height: 25px;
+      }
+      space {
+         display: table-cell;
          border: 1px solid black;
          text-align: center;
          vertical-align: middle;
       }
       piece {
-         color: white;
+         display: block;
+         border-radius: 12.5px;
          font-family: "Courier New";
+         color: white;
+         line-height: 25px;
       }
       piece.black {
          background: black;

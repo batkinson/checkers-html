@@ -129,15 +129,21 @@
       });
 
       socket.on('TURN', function(data) {
-         getElement('turn').innerHTML = data;
+         var msg;
+         if (data == 'waiting') {
+            msg = 'Waiting for players';
+         } else {
+            msg = data.charAt(0).toUpperCase() + data.slice(1) + "'s turn";
+         }
+         getElement('turn').innerHTML = msg;
       });
 
       socket.on('WINNER', function(data) {
-         getElement('winner').innerHTML = data;
+         getElement('winner').innerHTML = 'Winner: ' + data;
       });
 
       socket.on('GAME_ID', function(data) {
-         getElement('game-id').innerHTML = data;
+         getElement('game-id').innerHTML = 'Game ' + data;
       });
 
       function game_list() {

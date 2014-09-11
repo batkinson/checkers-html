@@ -29,41 +29,43 @@
       piece.red {
          background: red;
       }
-      game-id, turn, winner {
+      game-list, game-id, turn, winner {
          display: block;
       }
     </style>
   </head>
   <body>
-
-    <game-id></game-id>
+    
+    <game-list></game-list>
     <winner></winner>
     <turn></turn>
     <board></board>
+    <game-id></game-id>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
 
-      var status_types = ['BOARD', 'TURN', 'MOVED', 'CAPTURED', 'KING'];
-
-      function get_handler(type) {
-         return function(data) { console.log(type + ': ' + data); };
+      function getElement(name) {
+         var turnElems = document.getElementsByTagName(name);
+         if (turnElems.length == 0) {
+            var newElem = document.createElement(name);
+            document.body.appendChild(newElem);
+            return newElem;
+         }
+         return turnElems[0];
       }
 
-      for (var i=0; i<status_types.length; i++) {
-         var status_type = status_types[i];
-         socket.on(status_type, get_handler(status_type));
+      function getCell(x, y) {
+         var boardElem = getElement('board');
+         var rowElem = boardElem.getElementsByTagName('row')[y];
+         var cellElem = rowElem.getElementsByTagName('space')[x];
+         return cellElem;
       }
-
-      socket.on('LIST SPECTATE', function(data) {
-         var game_ids = data.split(' ');
-         // Doesn't handle empty list well
-         socket.emit('commands', 'SPECTATE ' + game_ids[0]);
-      });
 
       socket.on('BOARD', function(data) {
          var boardElem = getElement('board');
+         boardElem.innerHTML='';
          var rows = data.split('|');
          for (var i=0; i<rows.length; i++) {
             var rowElem = document.createElement('row');
@@ -87,23 +89,6 @@
             }
          }
       });
-
-      function getElement(name) {
-         var turnElems = document.getElementsByTagName(name);
-         if (turnElems.length == 0) {
-            var newElem = document.createElement(name);
-            document.body.appendChild(newElem);
-            return newElem;
-         }
-         return turnElems[0];
-      }
-
-      function getCell(x, y) {
-         var boardElem = getElement('board');
-         var rowElem = boardElem.getElementsByTagName('row')[y];
-         var cellElem = rowElem.getElementsByTagName('space')[x];
-         return cellElem;
-      }
 
       socket.on('MOVED', function(data) {
          var coords = data.split(' ');
@@ -143,15 +128,41 @@
       });
 
       socket.on('GAME_ID', function(data) {
-         getElement('game-id').innerHTML = 'Game ' + data;
+         getElement('game-id').innerHTML = 'Watching game ' + data;
+      });
+      
+      function spectate(gameId) {
+         socket.emit('commands', 'SPECTATE ' + gameId);
+      }
+
+      function spectateHandler(gameId) {
+         return function () { spectate(gameId); }
+      }
+
+      socket.on('LIST SPECTATE', function(data) {
+         if (data) {
+            var gameList = getElement('game-list');
+            gameList.innerHTML = '';
+            var gameIds = data.split(' ');
+            for (var i=0; i<gameIds.length; i++) {
+               var gameId = gameIds[i];
+               var radio = document.createElement('input');
+               radio.type = 'radio';
+               radio.name = 'game';
+               radio.value = gameId;
+               radio.onchange = spectateHandler(gameId);
+               gameList.appendChild(radio);
+               gameList.appendChild(document.createTextNode('Game ' + gameId));
+            }
+         }
       });
 
-      function game_list() {
+      function gameList() {
          console.log('sending game list command');
          socket.emit('commands', 'LIST SPECTATE');
       }
 
-      document.body.onload = game_list;
+      document.body.onload = gameList;
     </script>
   </body>
 </html>

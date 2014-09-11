@@ -17,6 +17,10 @@
          vertical-align: middle;
          width: 50px;
          height: 50px;
+         background: #d2d183;
+      }
+      space.usable {
+         background: #505032;
       }
       piece {
          display: block;
@@ -81,6 +85,7 @@
             for (var j=0; j<pieces.length; j++) {
                var spaceElem = document.createElement('space');
                rowElem.appendChild(spaceElem);
+               if ((j + (i % 2)) % 2 != 0) { spaceElem.className = 'usable'; }
                var piece = pieces[j];
                var pieceElem = document.createElement('piece');
                if (piece.toLowerCase() == 'r') {

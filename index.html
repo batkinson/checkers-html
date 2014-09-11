@@ -12,7 +12,14 @@
          width: 200px;
          background: white;
       }
+      game-info {
+         width: 250px;
+         position: absolute;
+         top: 5px;
+         left: 635px;
+      }
       game {
+         position: relative;
          width: 650px;
          visibility: hidden;
          margin: 0 auto;
@@ -59,10 +66,12 @@
     
     <game-list></game-list>
     <game>
-      <winner></winner>
-      <turn></turn>
+      <game-info>
+         <game-id></game-id>
+         <winner></winner>
+         <turn></turn>
+      </game-info>
       <board></board>
-      <game-id></game-id>
     </game>
 
     <script src="/socket.io/socket.io.js"></script>

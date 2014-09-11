@@ -177,7 +177,7 @@
       socket.on('LIST SPECTATE', function(data) {
          if (data) {
             var gameList = getElement('game-list');
-            gameList.innerHTML = '';
+            gameList.innerHTML = '<div>Games</div>';
             var gameIds = data.split(' ');
             for (var i=0; i<gameIds.length; i++) {
                var gameId = gameIds[i];
@@ -187,7 +187,7 @@
                radio.value = gameId;
                radio.onchange = spectateHandler(gameId);
                gameList.appendChild(radio);
-               gameList.appendChild(document.createTextNode('Game ' + gameId));
+               gameList.appendChild(document.createTextNode(gameId));
             }
          }
       });

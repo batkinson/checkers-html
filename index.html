@@ -4,9 +4,13 @@
     <title>Checkers Spectator</title>
 
     <style>
+      game {
+         visibility: hidden;
+         margin: 0 auto;
+      }
       board {
          display: table;
-         border: solid black 1px;
+         border: solid black 5px;
       }
       row {
          display: table-row;
@@ -40,7 +44,7 @@
       piece.red {
          background: red;
       }
-      game-list, game-id, turn, winner {
+      game, game-list, game-id, turn, winner {
          display: block;
       }
     </style>
@@ -48,13 +52,16 @@
   <body>
     
     <game-list></game-list>
-    <winner></winner>
-    <turn></turn>
-    <board></board>
-    <game-id></game-id>
+    <game>
+      <winner></winner>
+      <turn></turn>
+      <board></board>
+      <game-id></game-id>
+    </game>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+
       var socket = io();
 
       function getElement(name) {
@@ -100,6 +107,7 @@
                spaceElem.appendChild(pieceElem);
             }
          }
+         getElement('game').style.visibility = 'visible';
       });
 
       socket.on('MOVED', function(data) {

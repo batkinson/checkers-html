@@ -7,6 +7,10 @@ app.get('/', function(req, res) {
    res.sendFile('index.html', { root: './' });
 });
 
+app.get('/reset.css', function(req, res) {
+   res.sendFile('reset.css', { root: './' });
+});
+
 io.on('connection', function(socket) {
 
    function status_handler(msg) {

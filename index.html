@@ -29,9 +29,18 @@
       piece.red {
          background: red;
       }
+      game-id, turn, winner {
+         display: block;
+      }
     </style>
   </head>
   <body>
+
+    <game-id></game-id>
+    <winner></winner>
+    <turn></turn>
+    <board></board>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();

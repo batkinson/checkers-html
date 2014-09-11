@@ -87,6 +87,16 @@
          return cellElem;
       }
 
+      function getTurn() {
+         var turnElems = document.getElementsByTagName('turn');
+         if (turnElems.length == 0) {
+            var newElem = document.createElement('turn');
+            document.body.appendChild(newElem);
+            return newElem;
+         }
+         return turnElems[0];
+      }
+
       socket.on('MOVED', function(data) {
          var coords = data.split(' ');
          var srcx = coords[0], srcy = coords[1], dstx = coords[2], dsty = coords[3];
@@ -108,6 +118,10 @@
          var x = coords[0], y = coords[1];
          var pieceElem = getCell(x, y).childNodes[0];
          pieceElem.innerHTML = pieceElem.innerHTML.toUpperCase();
+      });
+
+      socket.on('TURN', function(data) {
+         getTurn().innerHTML = data;
       });
 
       function game_list() {

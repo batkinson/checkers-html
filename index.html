@@ -165,7 +165,7 @@
       });
 
       socket.on('GAME_ID', function(data) {
-         getElement('game-id').innerHTML = 'Watching game ' + data;
+         getElement('game-id').innerHTML = 'Game ' + data;
       });
       
       function spectate(gameId) {

@@ -80,21 +80,21 @@
          }
       });
 
-      function getCell(x, y) {
-         var boardElem = document.getElementsByTagName('board')[0];
-         var rowElem = boardElem.getElementsByTagName('row')[y];
-         var cellElem = rowElem.getElementsByTagName('space')[x];
-         return cellElem;
-      }
-
-      function getTurn() {
-         var turnElems = document.getElementsByTagName('turn');
+      function getElement(name) {
+         var turnElems = document.getElementsByTagName(name);
          if (turnElems.length == 0) {
-            var newElem = document.createElement('turn');
+            var newElem = document.createElement(name);
             document.body.appendChild(newElem);
             return newElem;
          }
          return turnElems[0];
+      }
+
+      function getCell(x, y) {
+         var boardElem = getElement('board');
+         var rowElem = boardElem.getElementsByTagName('row')[y];
+         var cellElem = rowElem.getElementsByTagName('space')[x];
+         return cellElem;
       }
 
       socket.on('MOVED', function(data) {
@@ -121,7 +121,7 @@
       });
 
       socket.on('TURN', function(data) {
-         getTurn().innerHTML = data;
+         getElement('turn').innerHTML = data;
       });
 
       function game_list() {

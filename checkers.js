@@ -18,7 +18,7 @@ function createClient(handler) {
                i = result.data.indexOf(lineTerminator);
             if (line.indexOf('OK') >= 0 || line.indexOf('ERROR') >= 0) {
                if (result.commands.length > 0) {
-                  handler = result.commands.pop();
+                  handler = result.commands.shift();
                   handler(line);
                }
             } else {

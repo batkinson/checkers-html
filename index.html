@@ -54,8 +54,7 @@
       });
 
       socket.on('BOARD', function(data) {
-         var boardElem = document.createElement('board');
-         document.body.appendChild(boardElem);
+         var boardElem = getElement('board');
          var rows = data.split('|');
          for (var i=0; i<rows.length; i++) {
             var rowElem = document.createElement('row');

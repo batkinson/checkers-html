@@ -12,6 +12,9 @@ To run this program, you'll need:
   * NPM
   * NodeJS
 
+You will also need to have a checkers server running on the local host on 
+port 5000.
+
 ## Setup
 
 To run the program, you just need to install the dependencies. This should be

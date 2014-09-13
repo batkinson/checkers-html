@@ -6,6 +6,18 @@ var checkers = require('./checkers');
 var HTTP_DEFAULT = 3000;
 var CHECKERS_DEFAULT = 5000;
 
+var httpPort = HTTP_DEFAULT;
+var checkersPort = CHECKERS_DEFAULT;
+
+if (process.argv.length > 2) {
+   if (process.argv.length != 4) {
+      console.log('Usage: nodejs server <http-port> <checkers-port>');
+      process.exit(1);
+   }
+   httpPort = process.argv[2];
+   checkersPort = process.argv[3];
+}
+
 app.get('/', function(req, res) {
    res.sendFile('index.html', { root: './' });
 });
@@ -30,7 +42,7 @@ io.on('connection', function(socket) {
       }
    }
 
-   game = checkers.connect(status_handler, CHECKERS_DEFAULT);
+   game = checkers.connect(status_handler, checkersPort);
 
    socket.on('commands', function(data) {
       game.send(data);
@@ -41,8 +53,8 @@ io.on('connection', function(socket) {
    });
 });
 
-var port = HTTP_DEFAULT;
-http.listen(port, function() {
-  console.log('listening on *:' + port);
+
+http.listen(httpPort, function() {
+  console.log('listening on *:' + httpPort);
 });
 

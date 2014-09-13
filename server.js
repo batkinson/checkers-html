@@ -3,6 +3,9 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var checkers = require('./checkers');
 
+var HTTP_DEFAULT = 3000;
+var CHECKERS_DEFAULT = 5000;
+
 app.get('/', function(req, res) {
    res.sendFile('index.html', { root: './' });
 });
@@ -27,7 +30,7 @@ io.on('connection', function(socket) {
       }
    }
 
-   game = checkers.connect(status_handler, 5000);
+   game = checkers.connect(status_handler, CHECKERS_DEFAULT);
 
    socket.on('commands', function(data) {
       game.send(data);
@@ -38,7 +41,7 @@ io.on('connection', function(socket) {
    });
 });
 
-var port = 3000;
+var port = HTTP_DEFAULT;
 http.listen(port, function() {
   console.log('listening on *:' + port);
 });

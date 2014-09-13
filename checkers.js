@@ -1,6 +1,6 @@
 var net = require('net');
 
-function createClient(handler) {
+function createClient(handler, port) {
 
    var result = { 
 
@@ -31,7 +31,7 @@ function createClient(handler) {
          result.client.end();
       },
 
-      'client':  net.connect({port: 5000}, function() {
+      'client':  net.connect({port: port}, function() {
             result.client.on('data', result.read);
             result.client.on('end', result.end);
             }),

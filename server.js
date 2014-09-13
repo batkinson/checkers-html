@@ -55,6 +55,6 @@ io.on('connection', function(socket) {
 
 
 http.listen(httpPort, function() {
-  console.log('listening on *:' + httpPort);
+  console.log('http port ' + httpPort + ' -> checkers port ' + checkersPort);
 });
 

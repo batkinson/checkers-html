@@ -124,6 +124,14 @@
          dragEvent.dataTransfer.setData('text/plain', srcStr);
       }
 
+      function dropPiece(dropEvent) {
+         dropEvent.preventDefault();
+         var coords = getCoords(dropEvent.target);
+         var destCoordStr = coords.x + ' ' + coords.y;
+         var srcCoordStr = dropEvent.dataTransfer.getData('text/plain');
+         socket.emit('commands', 'MOVE ' + srcCoordStr + ' ' + destCoordStr);
+      }
+
       socket.on('BOARD', function(data) {
          var boardElem = getElement('board');
          boardElem.innerHTML='';
@@ -139,6 +147,7 @@
                if ((j + (i % 2)) % 2 != 0) {
                   spaceElem.className = 'usable';
                   spaceElem.ondragover = allowDrop;
+                  spaceElem.ondrop = dropPiece;
                }
                var piece = pieces[j];
                var pieceElem = document.createElement('piece');

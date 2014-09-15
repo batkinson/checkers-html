@@ -34,7 +34,7 @@ io.on('connection', function(socket) {
 
    function status_handler(msg) {
       var STATUS = 'STATUS';
-      var status_types = ['GAME_ID', 'BOARD', 'MOVED', 'CAPTURED', 'WINNER', 'TURN', 'KING', 'LIST SPECTATE', 'LIST'];
+      var status_types = ['GAME_ID', 'BOARD', 'MOVED', 'CAPTURED', 'WINNER', 'TURN', 'KING', 'LIST SPECTATE', 'LIST', 'YOU_ARE'];
       for (var i=0; i<status_types.length; i++) {
          type = status_types[i];
          statusPrefix = STATUS + ' ' + type;

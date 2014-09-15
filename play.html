@@ -4,7 +4,7 @@
     <title>Checkers Spectator</title>
     <link rel="stylesheet" type="text/css" href="reset.css">
     <style>
-      game, game-list, game-id, turn, winner {
+      game, game-list, game-id, turn, winner, player {
          display: block;
       }
       game-list {
@@ -72,6 +72,7 @@
          <game-id></game-id>
          <winner></winner>
          <turn></turn>
+         <player></player>
       </game-info>
       <board></board>
     </game>
@@ -166,6 +167,10 @@
 
       socket.on('GAME_ID', function(data) {
          getElement('game-id').innerHTML = 'Game ' + data;
+      });
+
+      socket.on('YOU_ARE', function(data) {
+         getElement('player').innerHTML = 'Your pieces are ' + data;
       });
 
       function join(gameId) {

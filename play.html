@@ -92,11 +92,24 @@
          return turnElems[0];
       }
 
-      function getCell(x, y) {
+      function getSpace(x, y) {
          var boardElem = getElement('board');
          var rowElem = boardElem.getElementsByTagName('row')[y];
          var cellElem = rowElem.getElementsByTagName('space')[x];
          return cellElem;
+      }
+
+      function getCoords(spaceElem) {
+         var boardElem = getElement('board');
+         var rowElems = boardElem.getElementsByTagName('row');
+         for (var i=0; i<rowElems.length; i++) {
+            var spaceElems = rowElems[i].getElementsByTagName('space');
+            for (var j=0; j<spaceElems.length; j++) {
+               if (spaceElem === spaceElems[j]) {
+                  return { x: j, y: i };
+               }
+            }
+         }
       }
 
       socket.on('BOARD', function(data) {
@@ -140,7 +153,7 @@
       socket.on('MOVED', function(data) {
          var coords = data.split(' ');
          var srcx = coords[0], srcy = coords[1], dstx = coords[2], dsty = coords[3];
-         var srcCellElem = getCell(srcx, srcy), dstCellElem = getCell(dstx, dsty);
+         var srcCellElem = getSpace(srcx, srcy), dstCellElem = getSpace(dstx, dsty);
          var pieceElem = srcCellElem.childNodes[0];
          srcCellElem.removeChild(pieceElem);
          dstCellElem.appendChild(pieceElem);
@@ -149,14 +162,14 @@
       socket.on('CAPTURED', function(data) {
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
-         var cellElem = getCell(x, y);
+         var cellElem = getSpace(x, y);
          cellElem.removeChild(cellElem.childNodes[0]);
       });
 
       socket.on('KING', function(data) {
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
-         var pieceElem = getCell(x, y).childNodes[0];
+         var pieceElem = getSpace(x, y).childNodes[0];
          pieceElem.innerHTML = pieceElem.innerHTML = 'K';
       });
 

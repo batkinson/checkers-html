@@ -234,7 +234,9 @@
          turn = data;
          if (data == 'waiting') {
             msg = 'Waiting for players';
-         } else {
+         } else if (player && player == turn) {
+            msg = 'Your turn';
+         }else {
             msg = data.charAt(0).toUpperCase() + data.slice(1) + "'s turn";
          }
          getElement('turn').innerHTML = msg;

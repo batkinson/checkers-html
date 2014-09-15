@@ -166,12 +166,12 @@
          getElement('game').style.visibility = 'visible';
       });
 
-      function enableDragging(player) {
+      function enableDragging(turn) {
          var boardElem = getElement('board');
          var pieceElems = boardElem.getElementsByTagName('piece');
          for (var i=0; i<pieceElems.length; i++) {
             var pieceElem = pieceElems[i];
-            pieceElem.draggable = player == pieceElem.className;
+            pieceElem.draggable = turn == player && player == pieceElem.className;
          }
       }
 

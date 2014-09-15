@@ -22,6 +22,10 @@ app.get('/', function(req, res) {
    res.sendFile('index.html', { root: './' });
 });
 
+app.get('/play', function(req, res) {
+   res.sendFile('play.html', { root: './' });
+});
+
 app.get('/reset.css', function(req, res) {
    res.sendFile('reset.css', { root: './' });
 });
@@ -30,7 +34,7 @@ io.on('connection', function(socket) {
 
    function status_handler(msg) {
       var STATUS = 'STATUS';
-      var status_types = ['GAME_ID', 'BOARD', 'MOVED', 'CAPTURED', 'WINNER', 'TURN', 'KING', 'LIST SPECTATE'];
+      var status_types = ['GAME_ID', 'BOARD', 'MOVED', 'CAPTURED', 'WINNER', 'TURN', 'KING', 'LIST SPECTATE', 'LIST'];
       for (var i=0; i<status_types.length; i++) {
          type = status_types[i];
          statusPrefix = STATUS + ' ' + type;

@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Checkers Spectator</title>
+    <link rel="stylesheet" type="text/css" href="reset.css">
+    <style>
+      game, game-list, game-id, turn, winner {
+         display: block;
+      }
+      game-list {
+         position: fixed;
+         width: 150px;
+         top: 5px;
+         left: 5px;
+         background: white;
+      }
+      game-info {
+         width: 250px;
+         position: absolute;
+         top: 5px;
+         left: 635px;
+      }
+      game {
+         position: relative;
+         width: 650px;
+         visibility: hidden;
+         margin: 5px auto;
+      }
+      board {
+         display: table;
+         border: solid black 5px;
+      }
+      row {
+         display: table-row;
+      }
+      space {
+         display: table-cell;
+         border: 1px solid black;
+         vertical-align: middle;
+         width: 75px;
+         height: 75px;
+         background: #d2d183;
+      }
+      space.usable {
+         background: #505032;
+      }
+      piece {
+         display: block;
+         font-family: "Courier New";
+         font-weight: bold;
+         color: white;
+         width: 60px;
+         height: 60px;
+         line-height: 60px;
+         border-radius: 30px;
+         text-align: center;
+         margin: 0 auto;
+      }
+      piece.black {
+         background: black;
+      }
+      piece.red {
+         background: red;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <game-list></game-list>
+    <game>
+      <game-info>
+         <game-id></game-id>
+         <winner></winner>
+         <turn></turn>
+      </game-info>
+      <board></board>
+    </game>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+      var socket = io();
+
+      function getElement(name) {
+         var turnElems = document.getElementsByTagName(name);
+         if (turnElems.length == 0) {
+            var newElem = document.createElement(name);
+            document.body.appendChild(newElem);
+            return newElem;
+         }
+         return turnElems[0];
+      }
+
+      function getCell(x, y) {
+         var boardElem = getElement('board');
+         var rowElem = boardElem.getElementsByTagName('row')[y];
+         var cellElem = rowElem.getElementsByTagName('space')[x];
+         return cellElem;
+      }
+
+      socket.on('BOARD', function(data) {
+         var boardElem = getElement('board');
+         boardElem.innerHTML='';
+         var rows = data.split('|');
+         for (var i=0; i<rows.length; i++) {
+            var rowElem = document.createElement('row');
+            boardElem.appendChild(rowElem);
+            var row = rows[i];
+            var pieces = row.split('');
+            for (var j=0; j<pieces.length; j++) {
+               var spaceElem = document.createElement('space');
+               rowElem.appendChild(spaceElem);
+               if ((j + (i % 2)) % 2 != 0) spaceElem.className = 'usable';
+               var piece = pieces[j];
+               var pieceElem = document.createElement('piece');
+               if (piece.toLowerCase() == 'r') {
+                  pieceElem.className = 'red';
+               } else if (piece.toLowerCase() == 'b') {
+                  pieceElem.className = 'black';
+               } else {
+                  continue;
+               }
+               if (piece >= 'A' && piece <= 'Z') pieceElem.innerHTML = 'K';
+               spaceElem.appendChild(pieceElem);
+            }
+         }
+         getElement('game').style.visibility = 'visible';
+      });
+
+      socket.on('MOVED', function(data) {
+         var coords = data.split(' ');
+         var srcx = coords[0], srcy = coords[1], dstx = coords[2], dsty = coords[3];
+         var srcCellElem = getCell(srcx, srcy), dstCellElem = getCell(dstx, dsty);
+         var pieceElem = srcCellElem.childNodes[0];
+         srcCellElem.removeChild(pieceElem);
+         dstCellElem.appendChild(pieceElem);
+      });
+
+      socket.on('CAPTURED', function(data) {
+         var coords = data.split(' ');
+         var x = coords[0], y = coords[1];
+         var cellElem = getCell(x, y);
+         cellElem.removeChild(cellElem.childNodes[0]);
+      });
+
+      socket.on('KING', function(data) {
+         var coords = data.split(' ');
+         var x = coords[0], y = coords[1];
+         var pieceElem = getCell(x, y).childNodes[0];
+         pieceElem.innerHTML = pieceElem.innerHTML = 'K';
+      });
+
+      socket.on('TURN', function(data) {
+         var msg;
+         if (data == 'waiting') {
+            msg = 'Waiting for players';
+         } else {
+            msg = data.charAt(0).toUpperCase() + data.slice(1) + "'s turn";
+         }
+         getElement('turn').innerHTML = msg;
+      });
+
+      socket.on('WINNER', function(data) {
+         getElement('winner').innerHTML = 'Winner: ' + data;
+      });
+
+      socket.on('GAME_ID', function(data) {
+         getElement('game-id').innerHTML = 'Game ' + data;
+      });
+
+      function join(gameId) {
+         socket.emit('commands', 'JOIN ' + gameId);
+      }
+
+      function newGame() {
+         socket.emit('commands', 'NEW');
+      }
+
+      socket.on('LIST', function(data) {
+         if (data) {
+            var gameList = data.split(' ');
+            join(gameList[0]);
+         } else {
+            newGame();
+         }
+      });
+
+      function gameList() {
+         console.log('sending game list command');
+         socket.emit('commands', 'LIST');
+      }
+
+      document.body.onload = gameList;
+    </script>
+  </body>
+</html>

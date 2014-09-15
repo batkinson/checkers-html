@@ -48,6 +48,7 @@
          display: block;
          font-family: "Courier New";
          font-weight: bold;
+         font-size: x-large;
          color: white;
          width: 60px;
          height: 60px;
@@ -120,7 +121,7 @@
                } else {
                   continue;
                }
-               if (piece >= 'A' && piece <= 'Z') pieceElem.innerHTML = 'K';
+               if (piece >= 'A' && piece <= 'Z') pieceElem.innerHTML = '&#9812';
                spaceElem.appendChild(pieceElem);
             }
          }
@@ -147,7 +148,7 @@
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
          var pieceElem = getCell(x, y).childNodes[0];
-         pieceElem.innerHTML = pieceElem.innerHTML = 'K';
+         pieceElem.innerHTML = pieceElem.innerHTML = '&#9812';
       });
 
       socket.on('TURN', function(data) {

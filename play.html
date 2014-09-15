@@ -118,6 +118,12 @@
          }
       }
 
+      function dragPiece(dragEvent) {
+         var coords = getCoords(this.parentNode);
+         var srcStr = coords.x + ' ' + coords.y;
+         dragEvent.dataTransfer.setData('text/plain', srcStr);
+      }
+
       socket.on('BOARD', function(data) {
          var boardElem = getElement('board');
          boardElem.innerHTML='';
@@ -136,6 +142,7 @@
                }
                var piece = pieces[j];
                var pieceElem = document.createElement('piece');
+               pieceElem.ondragstart = dragPiece;
                if (piece.toLowerCase() == 'r') {
                   pieceElem.className = 'red';
                } else if (piece.toLowerCase() == 'b') {

@@ -128,6 +128,15 @@
          getElement('game').style.visibility = 'visible';
       });
 
+      function enableDragging(player) {
+         var boardElem = getElement('board');
+         var pieceElems = boardElem.getElementsByTagName('piece');
+         for (var i=0; i<pieceElems.length; i++) {
+            var pieceElem = pieceElems[i];
+            pieceElem.draggable = player == pieceElem.className;
+         }
+      }
+
       socket.on('MOVED', function(data) {
          var coords = data.split(' ');
          var srcx = coords[0], srcy = coords[1], dstx = coords[2], dsty = coords[3];
@@ -151,14 +160,17 @@
          pieceElem.innerHTML = pieceElem.innerHTML = 'K';
       });
 
+      var turn;
       socket.on('TURN', function(data) {
          var msg;
+         turn = data;
          if (data == 'waiting') {
             msg = 'Waiting for players';
          } else {
             msg = data.charAt(0).toUpperCase() + data.slice(1) + "'s turn";
          }
          getElement('turn').innerHTML = msg;
+         enableDragging(data);
       });
 
       socket.on('WINNER', function(data) {
@@ -169,7 +181,9 @@
          getElement('game-id').innerHTML = 'Game ' + data;
       });
 
+      var player;
       socket.on('YOU_ARE', function(data) {
+         player = data;
          getElement('player').innerHTML = 'Your pieces are ' + data;
       });
 

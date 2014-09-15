@@ -46,7 +46,7 @@ io.on('connection', function(socket) {
       }
    }
 
-   game = checkers.connect(status_handler, checkersPort);
+   var game = checkers.connect(status_handler, checkersPort);
 
    socket.on('commands', function(data) {
       game.send(data);

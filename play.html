@@ -112,6 +112,12 @@
          }
       }
 
+      function allowDrop(dragEvent) {
+         if (this.className == 'usable' && this.childNodes.length == 0) {
+            dragEvent.preventDefault();
+         }
+      }
+
       socket.on('BOARD', function(data) {
          var boardElem = getElement('board');
          boardElem.innerHTML='';
@@ -124,7 +130,10 @@
             for (var j=0; j<pieces.length; j++) {
                var spaceElem = document.createElement('space');
                rowElem.appendChild(spaceElem);
-               if ((j + (i % 2)) % 2 != 0) spaceElem.className = 'usable';
+               if ((j + (i % 2)) % 2 != 0) {
+                  spaceElem.className = 'usable';
+                  spaceElem.ondragover = allowDrop;
+               }
                var piece = pieces[j];
                var pieceElem = document.createElement('piece');
                if (piece.toLowerCase() == 'r') {

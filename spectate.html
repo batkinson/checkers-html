@@ -1,11 +1,10 @@
 <!doctype html>
 <html>
   <head>
-    <title>Checkers</title>
+    <title>Checkers Spectator</title>
     <link rel="stylesheet" type="text/css" href="reset.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <style>
-      game, game-list, game-id, turn, winner, player {
+      game, game-list, game-id, turn, winner {
          display: block;
       }
       game-list {
@@ -74,7 +73,6 @@
          <game-id></game-id>
          <winner></winner>
          <turn></turn>
-         <player></player>
       </game-info>
       <board></board>
     </game>
@@ -94,70 +92,11 @@
          return turnElems[0];
       }
 
-      function getSpace(x, y) {
+      function getCell(x, y) {
          var boardElem = getElement('board');
          var rowElem = boardElem.getElementsByTagName('row')[y];
          var cellElem = rowElem.getElementsByTagName('space')[x];
          return cellElem;
-      }
-
-      function getCoords(spaceElem) {
-         var boardElem = getElement('board');
-         var rowElems = boardElem.getElementsByTagName('row');
-         for (var i=0; i<rowElems.length; i++) {
-            var spaceElems = rowElems[i].getElementsByTagName('space');
-            for (var j=0; j<spaceElems.length; j++) {
-               if (spaceElem === spaceElems[j]) {
-                  return { x: j, y: i };
-               }
-            }
-         }
-      }
-
-      function move(src, dst) {
-         var cmd = 'MOVE ' + src.x + ' ' + src.y + ' ' + dst.x + ' ' + dst.y;
-         socket.emit('commands', cmd);
-      }
-
-      function allowDrop(dragEvent) {
-         if (this.className == 'usable' && this.childNodes.length == 0) {
-            dragEvent.preventDefault();
-         }
-      }
-
-      var touchSrc;
-      function touchDrag(touchEvent) {
-         touchEvent.preventDefault(); // Prevent scrolling
-         var srcSpace = this.parentNode;
-         if (touchEvent.changedTouches.length == 1 
-             && this.className == player && player == turn)
-            touchSrc = getCoords(srcSpace);
-         else
-            touchSrc = undefined;
-      }
-
-      function touchDrop(touchEvent) {
-         touchEvent.preventDefault();
-         if (touchSrc && touchEvent.changedTouches.length == 1) {
-            var touch = touchEvent.changedTouches[0];
-            var dropElem = document.elementFromPoint(touch.pageX, touch.pageY);
-            if (dropElem.className == 'usable' && dropElem.childNodes.length == 0) {
-               var touchDst = getCoords(dropElem);
-               move(touchSrc, touchDst);
-            }
-         }
-      }
-
-      function dragPiece(dragEvent) {
-         var dragSrc = getCoords(this.parentNode);
-         dragEvent.dataTransfer.setData('text/plain', JSON.stringify(dragSrc));
-      }
-
-      function dropPiece(dropEvent) {
-         dropEvent.preventDefault();
-         var dropDst = getCoords(dropEvent.target);
-         var dragSrc = JSON.parse(dropEvent.dataTransfer.getData('text/plain'));
-         move(dragSrc, dropDst);
       }
 
       socket.on('BOARD', function(data) {
@@ -172,16 +111,9 @@
             for (var j=0; j<pieces.length; j++) {
                var spaceElem = document.createElement('space');
                rowElem.appendChild(spaceElem);
-               if ((j + (i % 2)) % 2 != 0) {
-                  spaceElem.className = 'usable';
-                  spaceElem.ondragover = allowDrop;
-                  spaceElem.ondrop = dropPiece;
-               }
+               if ((j + (i % 2)) % 2 != 0) spaceElem.className = 'usable';
                var piece = pieces[j];
                var pieceElem = document.createElement('piece');
-               pieceElem.ondragstart = dragPiece;
-               pieceElem.addEventListener('touchstart', touchDrag);
-               pieceElem.addEventListener('touchend', touchDrop);
                if (piece.toLowerCase() == 'r') {
                   pieceElem.className = 'red';
                } else if (piece.toLowerCase() == 'b') {
@@ -196,19 +128,10 @@
          getElement('game').style.visibility = 'visible';
       });
 
-      function enableDragging(turn) {
-         var boardElem = getElement('board');
-         var pieceElems = boardElem.getElementsByTagName('piece');
-         for (var i=0; i<pieceElems.length; i++) {
-            var pieceElem = pieceElems[i];
-            pieceElem.draggable = turn == player && player == pieceElem.className;
-         }
-      }
-
       socket.on('MOVED', function(data) {
          var coords = data.split(' ');
          var srcx = coords[0], srcy = coords[1], dstx = coords[2], dsty = coords[3];
-         var srcCellElem = getSpace(srcx, srcy), dstCellElem = getSpace(dstx, dsty);
+         var srcCellElem = getCell(srcx, srcy), dstCellElem = getCell(dstx, dsty);
          var pieceElem = srcCellElem.childNodes[0];
          srcCellElem.removeChild(pieceElem);
          dstCellElem.appendChild(pieceElem);
@@ -217,30 +140,25 @@
       socket.on('CAPTURED', function(data) {
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
-         var cellElem = getSpace(x, y);
+         var cellElem = getCell(x, y);
          cellElem.removeChild(cellElem.childNodes[0]);
       });
 
       socket.on('KING', function(data) {
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
-         var pieceElem = getSpace(x, y).childNodes[0];
+         var pieceElem = getCell(x, y).childNodes[0];
          pieceElem.innerHTML = pieceElem.innerHTML = '&#9812';
       });
 
-      var turn;
       socket.on('TURN', function(data) {
          var msg;
-         turn = data;
          if (data == 'waiting') {
             msg = 'Waiting for players';
-         } else if (player && player == turn) {
-            msg = 'Your turn';
-         }else {
+         } else {
             msg = data.charAt(0).toUpperCase() + data.slice(1) + "'s turn";
          }
          getElement('turn').innerHTML = msg;
-         enableDragging(data);
       });
 
       socket.on('WINNER', function(data) {
@@ -250,33 +168,36 @@
       socket.on('GAME_ID', function(data) {
          getElement('game-id').innerHTML = 'Game ' + data;
       });
-
-      var player;
-      socket.on('YOU_ARE', function(data) {
-         player = data;
-         getElement('player').innerHTML = 'Your pieces are ' + data;
-      });
-
-      function join(gameId) {
-         socket.emit('commands', 'JOIN ' + gameId);
+      
+      function spectate(gameId) {
+         socket.emit('commands', 'SPECTATE ' + gameId);
       }
 
-      function newGame() {
-         socket.emit('commands', 'NEW');
+      function spectateHandler(gameId) {
+         return function () { spectate(gameId); }
       }
 
-      socket.on('LIST', function(data) {
+      socket.on('LIST SPECTATE', function(data) {
          if (data) {
-            var gameList = data.split(' ');
-            join(gameList[0]);
-         } else {
-            newGame();
+            var gameList = getElement('game-list');
+            gameList.innerHTML = '<div>Games</div>';
+            var gameIds = data.split(' ');
+            for (var i=0; i<gameIds.length; i++) {
+               var gameId = gameIds[i];
+               var radio = document.createElement('input');
+               radio.type = 'radio';
+               radio.name = 'game';
+               radio.value = gameId;
+               radio.onchange = spectateHandler(gameId);
+               gameList.appendChild(radio);
+               gameList.appendChild(document.createTextNode(gameId));
+            }
          }
       });
 
       function gameList() {
          console.log('sending game list command');
-         socket.emit('commands', 'LIST');
+         socket.emit('commands', 'LIST SPECTATE');
       }
 
       document.body.onload = gameList;

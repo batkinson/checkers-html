@@ -22,8 +22,8 @@ app.get('/', function(req, res) {
    res.sendFile('index.html', { root: './' });
 });
 
-app.get('/play', function(req, res) {
-   res.sendFile('play.html', { root: './' });
+app.get('/spectate', function(req, res) {
+   res.sendFile('spectate.html', { root: './' });
 });
 
 app.get('/reset.css', function(req, res) {

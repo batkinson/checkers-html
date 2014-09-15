@@ -36,3 +36,7 @@ Once the game server is started you can play games by pointing a browser at:
 
 http://localhost:3000/
 
+You can spectate games by pointing your browser at:
+
+http://localhost:3000/spectate
+

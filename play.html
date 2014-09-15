@@ -113,24 +113,50 @@
          }
       }
 
+      function move(src, dst) {
+         var cmd = 'MOVE ' + src.x + ' ' + src.y + ' ' + dst.x + ' ' + dst.y;
+         socket.emit('commands', cmd);
+      }
+
       function allowDrop(dragEvent) {
          if (this.className == 'usable' && this.childNodes.length == 0) {
             dragEvent.preventDefault();
          }
       }
 
+      var touchSrc;
+      function touchDrag(touchEvent) {
+         touchEvent.preventDefault(); // Prevent scrolling
+         var srcSpace = this.parentNode;
+         if (touchEvent.changedTouches.length == 1 
+             && this.className == player && player == turn)
+            touchSrc = getCoords(srcSpace);
+         else
+            touchSrc = undefined;
+      }
+
+      function touchDrop(touchEvent) {
+         touchEvent.preventDefault();
+         if (touchSrc && touchEvent.changedTouches.length == 1) {
+            var touch = touchEvent.changedTouches[0];
+            var dropElem = document.elementFromPoint(touch.pageX, touch.pageY);
+            if (dropElem.className == 'usable' && dropElem.childNodes.length == 0) {
+               var touchDst = getCoords(dropElem);
+               move(touchSrc, touchDst);
+            }
+         }
+      }
+
       function dragPiece(dragEvent) {
-         var coords = getCoords(this.parentNode);
-         var srcStr = coords.x + ' ' + coords.y;
-         dragEvent.dataTransfer.setData('text/plain', srcStr);
+         var dragSrc = getCoords(this.parentNode);
+         dragEvent.dataTransfer.setData('text/plain', JSON.stringify(dragSrc));
       }
 
       function dropPiece(dropEvent) {
          dropEvent.preventDefault();
-         var coords = getCoords(dropEvent.target);
-         var destCoordStr = coords.x + ' ' + coords.y;
-         var srcCoordStr = dropEvent.dataTransfer.getData('text/plain');
-         socket.emit('commands', 'MOVE ' + srcCoordStr + ' ' + destCoordStr);
+         var dropDst = getCoords(dropEvent.target);
+         var dragSrc = JSON.parse(dropEvent.dataTransfer.getData('text/plain'));
+         move(dragSrc, dropDst);
       }
 
       socket.on('BOARD', function(data) {
@@ -153,6 +179,8 @@
                var piece = pieces[j];
                var pieceElem = document.createElement('piece');
                pieceElem.ondragstart = dragPiece;
+               pieceElem.addEventListener('touchstart', touchDrag);
+               pieceElem.addEventListener('touchend', touchDrop);
                if (piece.toLowerCase() == 'r') {
                   pieceElem.className = 'red';
                } else if (piece.toLowerCase() == 'b') {

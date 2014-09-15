@@ -1,7 +1,7 @@
 {
-  "name": "socket-chat-example",
+  "name": "checkers",
   "version": "0.0.1",
-  "description": "my first socket.io app",
+  "description": "HTML5 Checkers",
   "dependencies": {
     "express": "~4.9.0",
     "socket.io": "~1.1.0",

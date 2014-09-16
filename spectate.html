@@ -188,8 +188,8 @@
       }
 
       socket.on('LIST SPECTATE', function(data) {
+         var gameList = getElement('game-list');
          if (data) {
-            var gameList = getElement('game-list');
             gameList.innerHTML = '<div>Games</div>';
             var gameIds = data.split(' ');
             for (var i=0; i<gameIds.length; i++) {
@@ -205,6 +205,8 @@
                label.innerHTML = gameId;
                gameList.appendChild(label);
             }
+         } else {
+            gameList.innerHTML = '<div>No Games</div>';
          }
       });
 

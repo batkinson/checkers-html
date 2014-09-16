@@ -14,6 +14,16 @@
          left: 5px;
          background: white;
       }
+      game-list input[type='radio'] {
+         display: none;
+      }
+      game-list input[type='radio']:checked + label {
+         color: white;
+         background: black;
+      }
+      game-list label {
+         display: block;
+      }
       game-info {
          width: 250px;
          position: absolute;
@@ -185,12 +195,15 @@
             for (var i=0; i<gameIds.length; i++) {
                var gameId = gameIds[i];
                var radio = document.createElement('input');
+               radio.id = gameId;
                radio.type = 'radio';
                radio.name = 'game';
-               radio.value = gameId;
                radio.onchange = spectateHandler(gameId);
                gameList.appendChild(radio);
-               gameList.appendChild(document.createTextNode(gameId));
+               var label = document.createElement('label');
+               label.setAttribute('for', gameId);
+               label.innerHTML = gameId;
+               gameList.appendChild(label);
             }
          }
       });

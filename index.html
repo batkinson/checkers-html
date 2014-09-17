@@ -153,7 +153,7 @@
       }
 
       function touchMove(touchEvent) {
-         if (touchEvent.targetTouches.length == 1) {
+         if (dragPiece && touchEvent.targetTouches.length == 1) {
             var touch = touchEvent.targetTouches[0];
             dragPiece.style.top = (touch.pageY - (dragPiece.offsetHeight / 2)) + 'px';
             dragPiece.style.left = (touch.pageX - (dragPiece.offsetWidth / 2)) + 'px';
@@ -162,14 +162,17 @@
 
       function touchDrop(touchEvent) {
          touchEvent.preventDefault();
-         getElement('game').removeChild(dragPiece);
-         if (touchSrc && touchEvent.changedTouches.length >= 1) {
+         if (dragPiece && touchSrc && touchEvent.changedTouches.length >= 1) {
             var touch = touchEvent.changedTouches[0];
+            getElement('game').removeChild(dragPiece);
+            dragPiece = undefined;
             var dropElem = document.elementFromPoint(touch.pageX, touch.pageY);
             if (dropElem.className == 'usable' && dropElem.childNodes.length == 0) {
                var touchDst = getCoords(dropElem);
                move(touchSrc, touchDst);
             }
+            var srcPieceElem = getSpace(touchSrc.x, touchSrc.y).childNodes[0];
+            srcPieceElem.className = srcPieceElem.className.replace(' hidden','');
          }
       }
 
@@ -238,7 +241,6 @@
          var pieceElem = srcCellElem.childNodes[0];
          srcCellElem.removeChild(pieceElem);
          dstCellElem.appendChild(pieceElem);
-         pieceElem.className = pieceElem.className.replace(' hidden','');
       });
 
       socket.on('CAPTURED', function(data) {

@@ -143,8 +143,8 @@
             var touch = touchEvent.changedTouches[0];
             touchSrc = getCoords(srcSpace);
             dragPiece = this.cloneNode(true);
-            dragPiece.style.top = (touch.pageY - (this.offsetHeight / 2)) + 'px';
-            dragPiece.style.left = (touch.pageX - (this.offsetWidth / 2)) + 'px';
+            dragPiece.style.top = (touch.clientY - (this.offsetHeight / 2)) + 'px';
+            dragPiece.style.left = (touch.clientX - (this.offsetWidth / 2)) + 'px';
             dragPiece.className += ' dragging';
             getElement('game').appendChild(dragPiece);
             this.className += ' hidden';
@@ -155,8 +155,8 @@
       function touchMove(touchEvent) {
          if (dragPiece && touchEvent.targetTouches.length == 1) {
             var touch = touchEvent.targetTouches[0];
-            dragPiece.style.top = (touch.pageY - (dragPiece.offsetHeight / 2)) + 'px';
-            dragPiece.style.left = (touch.pageX - (dragPiece.offsetWidth / 2)) + 'px';
+            dragPiece.style.top = (touch.clientY - (dragPiece.offsetHeight / 2)) + 'px';
+            dragPiece.style.left = (touch.clientX - (dragPiece.offsetWidth / 2)) + 'px';
          }
       }
 
@@ -166,7 +166,7 @@
             var touch = touchEvent.changedTouches[0];
             getElement('game').removeChild(dragPiece);
             dragPiece = undefined;
-            var dropElem = document.elementFromPoint(touch.pageX, touch.pageY);
+            var dropElem = document.elementFromPoint(touch.clientX, touch.clientY);
             if (dropElem.className == 'usable' && dropElem.childNodes.length == 0) {
                var touchDst = getCoords(dropElem);
                move(touchSrc, touchDst);

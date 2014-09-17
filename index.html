@@ -9,10 +9,10 @@
          display: block;
       }
       game-info {
-         width: 250px;
          position: absolute;
          top: 5px;
          left: 635px;
+         width: 250px;
       }
       game {
          position: relative;
@@ -70,13 +70,13 @@
   <body>
     
     <game>
+      <board></board>
       <game-info>
          <game-id></game-id>
          <winner></winner>
          <turn></turn>
          <player></player>
       </game-info>
-      <board></board>
     </game>
 
     <script src="/socket.io/socket.io.js"></script>

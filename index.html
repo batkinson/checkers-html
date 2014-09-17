@@ -64,6 +64,14 @@
       piece.red {
          background: red;
       }
+      piece.hidden {
+         display: none;
+      }
+      piece.dragging {
+         position: fixed;
+         opacity: 0.7;
+         z-index: 100;
+      }
     </style>
   </head>
   <body>
@@ -126,19 +134,36 @@
       }
 
       var touchSrc;
+      var dragPiece;
       function touchDrag(touchEvent) {
          touchEvent.preventDefault(); // Prevent scrolling
          var srcSpace = this.parentNode;
          if (touchEvent.changedTouches.length == 1 
-             && this.className == player && player == turn)
+             && this.className == player && player == turn) {
+            var touch = touchEvent.changedTouches[0];
             touchSrc = getCoords(srcSpace);
-         else
+            dragPiece = this.cloneNode(true);
+            dragPiece.style.top = (touch.pageY - (this.offsetHeight / 2)) + 'px';
+            dragPiece.style.left = (touch.pageX - (this.offsetWidth / 2)) + 'px';
+            dragPiece.className += ' dragging';
+            getElement('game').appendChild(dragPiece);
+            this.className += ' hidden';
+         } else
             touchSrc = undefined;
+      }
+
+      function touchMove(touchEvent) {
+         if (touchEvent.targetTouches.length == 1) {
+            var touch = touchEvent.targetTouches[0];
+            dragPiece.style.top = (touch.pageY - (dragPiece.offsetHeight / 2)) + 'px';
+            dragPiece.style.left = (touch.pageX - (dragPiece.offsetWidth / 2)) + 'px';
+         }
       }
 
       function touchDrop(touchEvent) {
          touchEvent.preventDefault();
-         if (touchSrc && touchEvent.changedTouches.length == 1) {
+         getElement('game').removeChild(dragPiece);
+         if (touchSrc && touchEvent.changedTouches.length >= 1) {
             var touch = touchEvent.changedTouches[0];
             var dropElem = document.elementFromPoint(touch.pageX, touch.pageY);
             if (dropElem.className == 'usable' && dropElem.childNodes.length == 0) {
@@ -181,6 +206,7 @@
                var pieceElem = document.createElement('piece');
                pieceElem.ondragstart = dragPiece;
                pieceElem.addEventListener('touchstart', touchDrag);
+               pieceElem.addEventListener('touchmove', touchMove);
                pieceElem.addEventListener('touchend', touchDrop);
                if (piece.toLowerCase() == 'r') {
                   pieceElem.className = 'red';
@@ -212,6 +238,7 @@
          var pieceElem = srcCellElem.childNodes[0];
          srcCellElem.removeChild(pieceElem);
          dstCellElem.appendChild(pieceElem);
+         pieceElem.className = pieceElem.className.replace(' hidden','');
       });
 
       socket.on('CAPTURED', function(data) {

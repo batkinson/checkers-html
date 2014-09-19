@@ -1,4 +1,5 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var checkers = require('./checkers');
@@ -26,9 +27,7 @@ app.get('/spectate', function(req, res) {
    res.sendFile('spectate.html', { root: './' });
 });
 
-app.get('/reset.css', function(req, res) {
-   res.sendFile('reset.css', { root: './' });
-});
+app.use(express.static(__dirname + '/static'));
 
 io.on('connection', function(socket) {
 

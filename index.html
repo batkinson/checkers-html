@@ -83,6 +83,7 @@
       </game-info>
     </game>
 
+    <script src="/jquery-1.11.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
 
@@ -304,7 +305,7 @@
          socket.emit('commands', 'LIST');
       }
 
-      document.body.onload = gameList;
+      $(document).ready(gameList);
     </script>
   </body>
 </html>

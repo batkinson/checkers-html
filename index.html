@@ -72,7 +72,7 @@
     </style>
   </head>
   <body>
-    
+
     <game>
       <board></board>
       <game-info>
@@ -134,7 +134,7 @@
          touchEvent = touchEvent.originalEvent;
          touchEvent.preventDefault(); // Prevent scrolling
          var srcSpace = this.parentNode;
-         if (touchEvent.changedTouches.length == 1 
+         if (touchEvent.changedTouches.length == 1
              && this.className == player && player == turn) {
             var touch = touchEvent.changedTouches[0];
             touchSrc = getCoords(srcSpace);
@@ -233,7 +233,31 @@
             }
          }
          $(getElement('game')).css('visibility', 'visible');
+         resizeGame();
       });
+
+      function resizeGame() {
+         var $window = $(window);
+         var tableDim = Math.min($window.width(), $window.height());
+         tableDim -= tableDim % 8 + (5*2);
+         var cellDim = (tableDim - (8*2)) / 8;
+         var pieceDim = (cellDim * .8);
+         pieceDim -= (pieceDim % 2);
+         var $board = $(getElement('board'));
+         $board.css('width', tableDim);
+         $board.css('height', tableDim);
+         $board.find('space').each(function() {
+            $(this).css('width', cellDim);
+            $(this).css('height', cellDim);
+         });
+         $board.find('piece').each(function() {
+            $(this).css('width', pieceDim);
+            $(this).css('height', pieceDim);
+            $(this).css('line-height', pieceDim);
+            $(this).css('border-radius', pieceDim / 2);
+         });
+      }
+      $(window).resize(resizeGame);
 
       function enableDragging(turn) {
          var $board = $(getElement('board'));

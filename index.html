@@ -256,6 +256,14 @@
             $(this).css('line-height', pieceDim);
             $(this).css('border-radius', pieceDim / 2);
          });
+         var $gameInfo = $(getElement('game-info'));
+         if ($window.width() > $window.height()) {
+            $gameInfo.css('left', $board.outerWidth() + 5);
+            $gameInfo.css('top', 5);
+         } else {
+            $gameInfo.css('left', 5);
+            $gameInfo.css('top', $board.outerHeight() + 5);
+         }
       }
       $(window).resize(resizeGame);
 

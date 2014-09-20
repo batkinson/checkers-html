@@ -90,13 +90,12 @@
       var socket = io();
 
       function getElement(name) {
-         var turnElems = document.getElementsByTagName(name);
-         if (turnElems.length == 0) {
-            var newElem = document.createElement(name);
-            document.body.appendChild(newElem);
-            return newElem;
-         }
-         return turnElems[0];
+         var $elems = $(name)
+         if ($elems.length)
+            return $elems[0];
+         var $elem = $('<' + name + '>');
+         $(body).append($elem)
+         return $elem;
       }
 
       function getSpace(x, y) {
@@ -107,15 +106,13 @@
       }
 
       function getCoords(spaceElem) {
-         var boardElem = getElement('board');
-         var rowElems = boardElem.getElementsByTagName('row');
-         for (var i=0; i<rowElems.length; i++) {
-            var spaceElems = rowElems[i].getElementsByTagName('space');
-            for (var j=0; j<spaceElems.length; j++) {
-               if (spaceElem === spaceElems[j]) {
-                  return { x: j, y: i };
-               }
-            }
+         var $board = $(getElement('board'));
+         var $space = $board.find(spaceElem);
+         if ($space.length) {
+            var $row = $space.parent();
+            var rowIndex = $board.children().index($row);
+            var colIndex = $row.children().index($space);
+            return { x: colIndex, y: rowIndex };
          }
       }
 
@@ -125,6 +122,7 @@
       }
 
       function allowDrop(dragEvent) {
+         dragEvent = dragEvent.originalEvent;
          if (this.className == 'usable' && this.childNodes.length == 0) {
             dragEvent.preventDefault();
          }
@@ -133,6 +131,7 @@
       var touchSrc;
       var dragPiece;
       function touchDrag(touchEvent) {
+         touchEvent = touchEvent.originalEvent;
          touchEvent.preventDefault(); // Prevent scrolling
          var srcSpace = this.parentNode;
          if (touchEvent.changedTouches.length == 1 
@@ -150,6 +149,7 @@
       }
 
       function touchMove(touchEvent) {
+         touchEvent = touchEvent.originalEvent;
          if (dragPiece && touchEvent.targetTouches.length == 1) {
             var touch = touchEvent.targetTouches[0];
             dragPiece.style.top = (touch.clientY - (dragPiece.offsetHeight / 2)) + 'px';
@@ -158,6 +158,7 @@
       }
 
       function touchDrop(touchEvent) {
+         touchEvent = touchEvent.originalEvent;
          touchEvent.preventDefault();
          if (dragPiece && touchSrc && touchEvent.changedTouches.length >= 1) {
             var touch = touchEvent.changedTouches[0];
@@ -174,11 +175,13 @@
       }
 
       function dragPiece(dragEvent) {
+         dragEvent = dragEvent.originalEvent;
          var dragSrc = getCoords(this.parentNode);
          dragEvent.dataTransfer.setData('text/plain', JSON.stringify(dragSrc));
       }
 
       function dropPiece(dropEvent) {
+         dropEvent = dropEvent.originalEvent;
          dropEvent.preventDefault();
          var dropDst = getCoords(dropEvent.target);
          var dragSrc = JSON.parse(dropEvent.dataTransfer.getData('text/plain'));
@@ -186,49 +189,57 @@
       }
 
       socket.on('BOARD', function(data) {
-         var boardElem = getElement('board');
-         boardElem.innerHTML='';
+
          var rows = data.split('|');
+         var $board = $(getElement('board'));
+         $board.html(''); // Clear existing board contents
+
          for (var i=0; i<rows.length; i++) {
-            var rowElem = document.createElement('row');
-            boardElem.appendChild(rowElem);
+
             var row = rows[i];
             var pieces = row.split('');
+            var $row = $('<row>');
+            $board.append($row);
+
             for (var j=0; j<pieces.length; j++) {
-               var spaceElem = document.createElement('space');
-               rowElem.appendChild(spaceElem);
-               if ((j + (i % 2)) % 2 != 0) {
-                  spaceElem.className = 'usable';
-                  spaceElem.ondragover = allowDrop;
-                  spaceElem.ondrop = dropPiece;
-               }
+
                var piece = pieces[j];
-               var pieceElem = document.createElement('piece');
-               pieceElem.ondragstart = dragPiece;
-               pieceElem.addEventListener('touchstart', touchDrag);
-               pieceElem.addEventListener('touchmove', touchMove);
-               pieceElem.addEventListener('touchend', touchDrop);
+               var $space = $('<space>');
+               $row.append($space);
+
+               if ((j + (i % 2)) % 2 != 0) {
+                  $space.addClass('usable');
+                  $space.on('dragover', allowDrop);
+                  $space.on('drop', dropPiece);
+               }
+
+               var $piece = $('<piece>');
+
+               $piece.on('dragstart', dragPiece);
+               $piece.on('touchstart', touchDrag);
+               $piece.on('touchmove', touchMove);
+               $piece.on('touchend', touchDrop);
+
                if (piece.toLowerCase() == 'r') {
-                  pieceElem.className = 'red';
+                  $piece.addClass('red');
                } else if (piece.toLowerCase() == 'b') {
-                  pieceElem.className = 'black';
+                  $piece.addClass('black');
                } else {
                   continue;
                }
-               if (piece >= 'A' && piece <= 'Z') pieceElem.innerHTML = '&#9812';
-               spaceElem.appendChild(pieceElem);
+               $space.append($piece);
+               if (piece >= 'A' && piece <= 'Z')
+                  $piece.html('&#9812');
             }
          }
-         getElement('game').style.visibility = 'visible';
+         $(getElement('game')).css('visibility', 'visible');
       });
 
       function enableDragging(turn) {
-         var boardElem = getElement('board');
-         var pieceElems = boardElem.getElementsByTagName('piece');
-         for (var i=0; i<pieceElems.length; i++) {
-            var pieceElem = pieceElems[i];
-            pieceElem.draggable = turn == player && player == pieceElem.className;
-         }
+         var $board = $(getElement('board'));
+         $board.find('piece').each(function() {
+            this.draggable = turn == player && player == this.className;
+         });
       }
 
       socket.on('MOVED', function(data) {

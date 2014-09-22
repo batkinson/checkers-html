@@ -130,6 +130,7 @@
       }
 
       var touchSrc;
+      var origPiece;
       var dragPiece;
       function touchDrag(touchEvent) {
          touchEvent = touchEvent.originalEvent;
@@ -140,13 +141,19 @@
             var touch = touchEvent.changedTouches[0];
             touchSrc = getCoords(srcSpace);
             dragPiece = this.cloneNode(true);
+            origPiece = this;
             dragPiece.style.top = (touch.clientY - (this.offsetHeight / 2)) + 'px';
             dragPiece.style.left = (touch.clientX - (this.offsetWidth / 2)) + 'px';
             $(dragPiece).addClass('dragging');
             getElement('game').appendChild(dragPiece);
             $(this).addClass('hidden');
-         } else
-            touchSrc = undefined;
+         } else 
+            resetDrag();
+         
+      }
+
+      function resetDrag() {
+         touchSrc = origPiece = undefined;
       }
 
       function touchMove(touchEvent) {
@@ -169,9 +176,16 @@
             if ($(dropElem).hasClass('usable') && dropElem.childNodes.length == 0) {
                var touchDst = getCoords(dropElem);
                move(touchSrc, touchDst);
+            } else {
+               unhidePieceAfterDrop();
             }
-            var srcPieceElem = getSpace(touchSrc.x, touchSrc.y).childNodes[0];
-            $(srcPieceElem).removeClass('hidden');
+         }
+      }
+
+      function unhidePieceAfterDrop() {
+         if (origPiece) {
+            $(origPiece).removeClass('hidden');
+            resetDrag();
          }
       }
 
@@ -342,6 +356,10 @@
          } else {
             newGame();
          }
+      });
+
+      socket.on('commands', function(data) {
+         unhidePieceAfterDrop();
       });
 
       function gameList() {

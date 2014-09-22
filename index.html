@@ -158,7 +158,7 @@
 
       function touchMove(touchEvent) {
          touchEvent = touchEvent.originalEvent;
-         if (typeof dragPiece !== 'undefined'  && touchEvent.targetTouches.length == 1) {
+         if (typeof dragPiece === 'object'  && touchEvent.targetTouches.length == 1) {
             var touch = touchEvent.targetTouches[0];
             dragPiece.style.top = (touch.clientY - (dragPiece.offsetHeight / 2)) + 'px';
             dragPiece.style.left = (touch.clientX - (dragPiece.offsetWidth / 2)) + 'px';

@@ -1,18 +1,23 @@
 <!doctype html>
 <html>
   <head>
-    <title>Checkers Spectator</title>
+    <title>Checkers - Spectating</title>
     <link rel="stylesheet" type="text/css" href="reset.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <style>
+      body {
+         font-family: "Courier New";
+         font-size: normal;
+      }
       game, game-list, game-id, turn, winner {
          display: block;
       }
       game-list {
+         background: white;
          position: fixed;
          width: 150px;
-         top: 5px;
-         left: 5px;
-         background: white;
+         top: 0px;
+         left: 0px;
       }
       game-list input[type='radio'] {
          display: none;
@@ -25,16 +30,20 @@
          display: block;
       }
       game-info {
-         width: 250px;
          position: absolute;
-         top: 5px;
-         left: 635px;
+         background: white;
+         top: 0px;
+         left: 630px;
+         width: 250px;
+         height: 50px;
+      }
+      game-info, game-list {
+         padding: 5px;
       }
       game {
          position: relative;
-         width: 650px;
          visibility: hidden;
-         margin: 5px auto;
+         margin: 0px;
       }
       board {
          display: table;
@@ -56,29 +65,30 @@
       }
       piece {
          display: block;
-         font-family: "Courier New";
-         font-weight: bold;
-         font-size: x-large;
          color: white;
          width: 60px;
          height: 60px;
-         line-height: 60px;
+         background-size: 60px;
+         background-position: center;
          border-radius: 30px;
-         text-align: center;
          margin: 0 auto;
       }
       piece.black {
-         background: black;
+         background-color: black;
       }
       piece.red {
-         background: red;
+         background-color: red;
+      }
+      piece.king {
+         background-image: url(crown.png);
+         background-repeat: no-repeat;
       }
     </style>
   </head>
   <body>
-    
-    <game-list></game-list>
+
     <game>
+      <game-list></game-list>
       <game-info>
          <game-id></game-id>
          <winner></winner>
@@ -87,61 +97,109 @@
       <board></board>
     </game>
 
+    <script src="/jquery-1.11.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
 
       var socket = io();
 
       function getElement(name) {
-         var turnElems = document.getElementsByTagName(name);
-         if (turnElems.length == 0) {
-            var newElem = document.createElement(name);
-            document.body.appendChild(newElem);
-            return newElem;
-         }
-         return turnElems[0];
+         var $elems = $(name)
+         if ($elems.length)
+            return $elems[0];
+         var $elem = $('<' + name + '>');
+         $(body).append($elem)
+         return $elem;
       }
 
-      function getCell(x, y) {
+      function getSpace(x, y) {
          var boardElem = getElement('board');
          var rowElem = boardElem.getElementsByTagName('row')[y];
          var cellElem = rowElem.getElementsByTagName('space')[x];
          return cellElem;
       }
 
+      function resizeGame() {
+         var $window = $(window);
+         var tableDim = Math.min($window.width(), $window.height());
+         tableDim -= tableDim % 8 + (5*2);
+         var cellDim = (tableDim - (8*2)) / 8;
+         var pieceDim = (cellDim * .8);
+         pieceDim -= (pieceDim % 2);
+         var $board = $(getElement('board'));
+         $board.css('width', tableDim);
+         $board.css('height', tableDim);
+         $board.find('space').each(function() {
+            $(this).css('width', cellDim);
+            $(this).css('height', cellDim);
+         });
+         $board.find('piece').each(function() {
+            $(this).css('width', pieceDim);
+            $(this).css('height', pieceDim);
+            $(this).css('border-radius', pieceDim / 2);
+            $(this).css('background-size', pieceDim * 0.75);
+         });
+         var $gameInfo = $(getElement('game-info'));
+         var $gameList = $(getElement('game-list'));
+         if ($window.width() > $window.height()) {
+            $gameInfo.css('left', $board.outerWidth());
+            $gameInfo.css('top', 0);
+            $gameList.css('left', $board.outerWidth());
+            $gameList.css('top', $gameInfo.position().top + ($gameInfo.outerHeight() * 1.25));
+         } else {
+            $gameInfo.css('left', 0);
+            $gameInfo.css('top', $board.outerHeight());
+            $gameList.css('left', $gameInfo.outerWidth());
+            $gameList.css('top', $board.outerHeight());
+         }
+      }
+      $(window).resize(resizeGame);
+
       socket.on('BOARD', function(data) {
-         var boardElem = getElement('board');
-         boardElem.innerHTML='';
+
          var rows = data.split('|');
+         var $board = $(getElement('board'));
+         $board.html(''); // Clear existing board contents
+
          for (var i=0; i<rows.length; i++) {
-            var rowElem = document.createElement('row');
-            boardElem.appendChild(rowElem);
+
             var row = rows[i];
             var pieces = row.split('');
+            var $row = $('<row>');
+            $board.append($row);
+
             for (var j=0; j<pieces.length; j++) {
-               var spaceElem = document.createElement('space');
-               rowElem.appendChild(spaceElem);
-               if ((j + (i % 2)) % 2 != 0) spaceElem.className = 'usable';
+
                var piece = pieces[j];
-               var pieceElem = document.createElement('piece');
+               var $space = $('<space>');
+               $row.append($space);
+
+               if ((j + (i % 2)) % 2 != 0) {
+                  $space.addClass('usable');
+               }
+
+               var $piece = $('<piece>');
+
                if (piece.toLowerCase() == 'r') {
-                  pieceElem.className = 'red';
+                  $piece.addClass('red');
                } else if (piece.toLowerCase() == 'b') {
-                  pieceElem.className = 'black';
+                  $piece.addClass('black');
                } else {
                   continue;
                }
-               if (piece >= 'A' && piece <= 'Z') pieceElem.innerHTML = '&#9812';
-               spaceElem.appendChild(pieceElem);
+               $space.append($piece);
+               if (piece >= 'A' && piece <= 'Z')
+                  $piece.addClass('king');
             }
          }
-         getElement('game').style.visibility = 'visible';
+         $(getElement('game')).css('visibility', 'visible');
+         resizeGame();
       });
 
       socket.on('MOVED', function(data) {
          var coords = data.split(' ');
          var srcx = coords[0], srcy = coords[1], dstx = coords[2], dsty = coords[3];
-         var srcCellElem = getCell(srcx, srcy), dstCellElem = getCell(dstx, dsty);
+         var srcCellElem = getSpace(srcx, srcy), dstCellElem = getSpace(dstx, dsty);
          var pieceElem = srcCellElem.childNodes[0];
          srcCellElem.removeChild(pieceElem);
          dstCellElem.appendChild(pieceElem);
@@ -150,15 +208,15 @@
       socket.on('CAPTURED', function(data) {
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
-         var cellElem = getCell(x, y);
+         var cellElem = getSpace(x, y);
          cellElem.removeChild(cellElem.childNodes[0]);
       });
 
       socket.on('KING', function(data) {
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
-         var pieceElem = getCell(x, y).childNodes[0];
-         pieceElem.innerHTML = pieceElem.innerHTML = '&#9812';
+         var pieceElem = getSpace(x, y).childNodes[0];
+         $(pieceElem).addClass('king');
       });
 
       socket.on('TURN', function(data) {
@@ -178,7 +236,7 @@
       socket.on('GAME_ID', function(data) {
          getElement('game-id').innerHTML = 'Game ' + data;
       });
-      
+
       function spectate(gameId) {
          socket.emit('commands', 'SPECTATE ' + gameId);
       }
@@ -188,26 +246,24 @@
       }
 
       socket.on('LIST SPECTATE', function(data) {
-         var gameList = getElement('game-list');
+         var $gameList = $(getElement('game-list'));
          if (data) {
-            gameList.innerHTML = '<div>Games</div>';
+            $gameList.html('<div>Games</div>');
             var gameIds = data.split(' ');
             for (var i=0; i<gameIds.length; i++) {
                var gameId = gameIds[i];
-               var radio = document.createElement('input');
-               radio.id = gameId;
-               radio.type = 'radio';
-               radio.name = 'game';
-               radio.onchange = spectateHandler(gameId);
-               gameList.appendChild(radio);
-               var label = document.createElement('label');
-               label.setAttribute('for', gameId);
-               label.innerHTML = gameId;
-               gameList.appendChild(label);
+               var $radio = $('<input>', {
+                  'id': gameId, 'type': 'radio', 'name': 'game',
+                  on: { change: spectateHandler(gameId) }
+               });
+               var $label = $('<label for="' + gameId + '">' + gameId + '</label>');
+               $gameList.append($radio);
+               $gameList.append($label);
             }
          } else {
-            gameList.innerHTML = '<div>No Games</div>';
+            $gameList.html('<div>No Games</div>');
          }
+         $(getElement('game')).css('visibility', 'visible');
       });
 
       function gameList() {
@@ -215,7 +271,7 @@
          socket.emit('commands', 'LIST SPECTATE');
       }
 
-      document.body.onload = gameList;
+      $(document).ready(gameList);
     </script>
   </body>
 </html>

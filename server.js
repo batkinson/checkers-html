@@ -48,7 +48,9 @@ io.on('connection', function(socket) {
    var game = checkers.connect(status_handler, checkersPort);
 
    socket.on('commands', function(data) {
-      game.send(data);
+      game.send(data, function(cmdResult) {
+         socket.emit('commands', cmdResult);
+      });
    });
 
    socket.on('disconnect', function() {

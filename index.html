@@ -43,28 +43,25 @@
       space.usable {
          background: #505032;
       }
-      @font-face {
-         font-family: "Merida Chess Unicode";
-         src: url('chess_merida_unicode.ttf');
-      }
       piece {
          display: block;
-         font-family: "Merida Chess Unicode";
-         font-weight: bold;
-         font-size: x-large;
          color: white;
          width: 60px;
          height: 60px;
-         line-height: 60px;
+         background-size: 60px;
+         background-position: center;
          border-radius: 30px;
-         text-align: center;
          margin: 0 auto;
       }
       piece.black {
-         background: black;
+         background-color: black;
       }
       piece.red {
-         background: red;
+         background-color: red;
+      }
+      piece.king {
+         background-image: url(crown.png);
+         background-repeat: no-repeat;
       }
       piece.hidden {
          display: none;
@@ -128,7 +125,7 @@
 
       function allowDrop(dragEvent) {
          dragEvent = dragEvent.originalEvent;
-         if (this.className == 'usable' && this.childNodes.length == 0) {
+         if ($(this).hasClass('usable') && this.childNodes.length == 0) {
             dragEvent.preventDefault();
          }
       }
@@ -140,15 +137,15 @@
          touchEvent.preventDefault(); // Prevent scrolling
          var srcSpace = this.parentNode;
          if (touchEvent.changedTouches.length == 1
-             && this.className == player && player == turn) {
+             && $(this).hasClass(player) && player == turn) {
             var touch = touchEvent.changedTouches[0];
             touchSrc = getCoords(srcSpace);
             dragPiece = this.cloneNode(true);
             dragPiece.style.top = (touch.clientY - (this.offsetHeight / 2)) + 'px';
             dragPiece.style.left = (touch.clientX - (this.offsetWidth / 2)) + 'px';
-            dragPiece.className += ' dragging';
+            $(dragPiece).addClass('dragging');
             getElement('game').appendChild(dragPiece);
-            this.className += ' hidden';
+            $(this).addClass('hidden');
          } else
             touchSrc = undefined;
       }
@@ -170,12 +167,12 @@
             getElement('game').removeChild(dragPiece);
             dragPiece = undefined;
             var dropElem = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (dropElem.className == 'usable' && dropElem.childNodes.length == 0) {
+            if ($(dropElem).hasClass('usable') && dropElem.childNodes.length == 0) {
                var touchDst = getCoords(dropElem);
                move(touchSrc, touchDst);
             }
             var srcPieceElem = getSpace(touchSrc.x, touchSrc.y).childNodes[0];
-            srcPieceElem.className = srcPieceElem.className.replace(' hidden','');
+            $(srcPieceElem).removeClass('hidden');
          }
       }
 
@@ -234,7 +231,7 @@
                }
                $space.append($piece);
                if (piece >= 'A' && piece <= 'Z')
-                  $piece.html('&#9812');
+                  $piece.addClass('king');
             }
          }
          $(getElement('game')).css('visibility', 'visible');
@@ -258,8 +255,8 @@
          $board.find('piece').each(function() {
             $(this).css('width', pieceDim);
             $(this).css('height', pieceDim);
-            $(this).css('line-height', pieceDim + 'px');
             $(this).css('border-radius', pieceDim / 2);
+            $(this).css('background-size', pieceDim * 0.75);
          });
          var $gameInfo = $(getElement('game-info'));
          if ($window.width() > $window.height()) {
@@ -275,7 +272,7 @@
       function enableDragging(turn) {
          var $board = $(getElement('board'));
          $board.find('piece').each(function() {
-            this.draggable = turn == player && player == this.className;
+            this.draggable = turn == player && $(this).hasClass(player);
          });
       }
 
@@ -299,7 +296,7 @@
          var coords = data.split(' ');
          var x = coords[0], y = coords[1];
          var pieceElem = getSpace(x, y).childNodes[0];
-         pieceElem.innerHTML = pieceElem.innerHTML = '&#9812';
+         $(pieceElem).addClass('king');
       });
 
       var turn;

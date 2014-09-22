@@ -253,7 +253,7 @@
          $board.find('piece').each(function() {
             $(this).css('width', pieceDim);
             $(this).css('height', pieceDim);
-            $(this).css('line-height', pieceDim);
+            $(this).css('line-height', pieceDim + 'px');
             $(this).css('border-radius', pieceDim / 2);
          });
          var $gameInfo = $(getElement('game-info'));

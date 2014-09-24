@@ -70,6 +70,9 @@
          opacity: 0.7;
          z-index: 100;
       }
+      piece.is_turn {
+         border: 1px solid yellow;
+      }
     </style>
   </head>
   <body>
@@ -282,10 +285,16 @@
       }
       $(window).resize(resizeGame);
 
-      function enableDragging(turn) {
+      function enablePieces(turn) {
          var $board = $(getElement('board'));
          $board.find('piece').each(function() {
-            this.draggable = turn == player && $(this).hasClass(player);
+            var isPieceTurn = turn == player && $(this).hasClass(player);
+            this.draggable = isPieceTurn;
+            if (isPieceTurn) {
+               $(this).addClass('is_turn');
+            } else {
+               $(this).removeClass('is_turn');
+            }
          });
       }
 
@@ -324,7 +333,7 @@
             msg = data.charAt(0).toUpperCase() + data.slice(1) + "'s turn";
          }
          getElement('turn').innerHTML = msg;
-         enableDragging(data);
+         enablePieces(data);
       });
 
       socket.on('WINNER', function(data) {

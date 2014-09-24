@@ -83,6 +83,9 @@
          background-image: url(crown.png);
          background-repeat: no-repeat;
       }
+      piece.is_turn {
+         border: 1px solid yellow;
+      }
     </style>
   </head>
   <body>
@@ -227,6 +230,13 @@
             msg = data.charAt(0).toUpperCase() + data.slice(1) + "'s turn";
          }
          getElement('turn').innerHTML = msg;
+         $('board').find('piece').each(function() {
+            if ($(this).hasClass(data)) {
+               $(this).addClass('is_turn');
+            } else {
+               $(this).removeClass('is_turn');
+            }
+         });
       });
 
       socket.on('WINNER', function(data) {

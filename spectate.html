@@ -270,6 +270,8 @@
                $gameList.append($radio);
                $gameList.append($label);
             }
+            $refreshLink = $('<button>Refresh</button>').click(gameList);
+            $gameList.append($refreshLink);
          } else {
             $gameList.html('<div>No Games</div>');
          }

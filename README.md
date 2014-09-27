@@ -4,6 +4,7 @@ A browser-based client for spectating or playing the network multiplayer game
 [checkers](https://github.com/batkinson/checkers) implemented using html, 
 nodejs and socket.io.
 
+![Game Screen](images/screenshot.png)
 
 ## Requirements
 

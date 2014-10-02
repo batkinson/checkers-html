@@ -72,6 +72,14 @@ piece.black {
 piece.red {
    background-color: red;
 }
+piece.hidden {
+   display: none;
+}
+piece.dragging {
+   position: fixed;
+   opacity: 0.7;
+   z-index: 100;
+}
 piece.king {
    background-image: url(crown.png);
    background-repeat: no-repeat;
